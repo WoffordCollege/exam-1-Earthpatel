@@ -1,18 +1,17 @@
 package edu.wofford;
 
-
 /**
  * This class provides implements a game board for Connect Four.
  * In this game, the RED player always plays the first token.
  * A Connect Four game board has 6 rows and 7 columns:
  * 
- *  | | | | | | | |
- *  | | | | | | | |
- *  | | | | | | | |
- *  | | | |B| | | |
- *  |B| |B|R| | | |
- *  |R|B|B|R| |R|R|
- *  ---------------
+ * | | | | | | | |
+ * | | | | | | | |
+ * | | | | | | | |
+ * | | | |B| | | |
+ * |B| |B|R| | | |
+ * |R|B|B|R| |R|R|
+ * ---------------
  * 
  * This diagram also illustrates how the board should be printed
  * to the screen (via the toString method).
@@ -23,14 +22,20 @@ package edu.wofford;
  * is filled with no winning condition. If the game is still
  * ongoing, the result should be NONE.
  */
- 
+
 public class ConnectFour {
 
-    public enum Location {EMPTY, RED, BLACK};
-    public enum Result {NONE, TIE, BLACKWIN, REDWIN};
+    public enum Location {
+        EMPTY, RED, BLACK
+    };
+
+    public enum Result {
+        NONE, TIE, BLACKWIN, REDWIN
+    };
+
     protected Location[][] board;
     protected boolean redTurn;
-    
+
     /**
      * This is a convenience method that you might find useful.
      * It returns the specified column's entries as a string.
@@ -45,27 +50,26 @@ public class ConnectFour {
      * ---------------
      * 
      * Calling this function on column 1 would return "RBB". On
-     * column 5 it would return "BR". (It starts from the "bottom" 
+     * column 5 it would return "BR". (It starts from the "bottom"
      * of the column.)
      * 
      * @param column the column to convert
      * @return a string representing that column's contents
      */
     private String getColumnAsString(int column) {
-        if(column >= 0 && column < board[0].length) {
+        if (column >= 0 && column < board[0].length) {
             String s = "";
             int row = board.length - 1;
-            while(row >= 0 && board[row][column] != Location.EMPTY) {
-                s += (board[row][column] == Location.RED)? "R" : "B";
+            while (row >= 0 && board[row][column] != Location.EMPTY) {
+                s += (board[row][column] == Location.RED) ? "R" : "B";
                 row--;
             }
             return s;
-        }
-        else {
+        } else {
             return "";
         }
     }
-    
+
     /**
      * This constructor creates a completely empty board and
      * sets the current player to red.
@@ -86,24 +90,17 @@ public class ConnectFour {
     public Location getLocation(int row, int col) {
         return board[row][col];
     }
-    
+
     public void setLocation(int row, int col, Location loc) {
         board[row][col] = loc;
     }
-    
 
-
-
-
-    
-
-    //===========================================================
-    //                          TO DO
-    //===========================================================
-
+    // ===========================================================
+    // TO DO
+    // ===========================================================
 
     /**
-     * This method returns the token type on the top of the 
+     * This method returns the token type on the top of the
      * specified column. If the column is empty, it should
      * return EMPTY. Otherwise, it should return either
      * RED or BLACK.
@@ -114,10 +111,18 @@ public class ConnectFour {
     public Location getTopOfColumn(int column) {
         // Question 1
         // TODO
-        
-        return Location.EMPTY;
+
+        String columnString = getColumnAsString(column);
+        String columnLastValue = columnString.substring(columnString.length() - 1);
+        if (columnLastValue == "R") {
+            return Location.RED;
+        } else if (columnLastValue == "B") {
+            return Location.BLACK;
+        } else {
+            return Location.EMPTY;
+        }
     }
-    
+
     /**
      * This method returns the height of the specified column.
      * If the column is empty, this returns a 0. The maximum
@@ -129,12 +134,20 @@ public class ConnectFour {
     public int getHeightOfColumn(int column) {
         // Question 2
         // TODO
-        
+        String columnString = getColumnAsString(column);
+        int columnHeight = columnString.length();
+
+        if (columnHeight > 0 && columnHeight <= 6) {
+            return columnHeight;
+        } else if (columnHeight == 0) {
+            return 0;
+        }
+
         return 0;
     }
-    
+
     /**
-     * This method drops a token into the specified column and 
+     * This method drops a token into the specified column and
      * changes the current player (from RED to BLACK and vice versa).
      * If the column is invalid (i.e., not in the range [0, 6]), then
      * the drop should be ignored (so that it would remain the previous
@@ -143,12 +156,32 @@ public class ConnectFour {
      * 
      * @param column the column for the token
      */
-    public void dropToken(int column) {
+    public void dropToken(int column) throws ColumnFullException{
         // Question 3
         // TODO
-        
+        if (column <= 0 && column >= 6){
+            if (redTurn == true) {
+                redTurn = true;
+            } else if (redTurn == false) {
+                redTurn = false;
+            }
+        }
+        if (getHeightOfColumn(column) != 6) {
+            if (column >= 0 && column <= 6) {
+                if (redTurn == true) {
+
+                    redTurn = false;
+                } else if (redTurn == false) {
+                    redTurn = true;
+                }
+            }
+        } else if (getHeightOfColumn(column) == 6){
+            throw new ColumnFullException();
+        }
+
     }
-    
+
+
     /**
      * This method returns the current result of the game. If the
      * game board is entirely full, this result should be TIE. If
@@ -162,29 +195,47 @@ public class ConnectFour {
         // Question 4
         // You don't have to handle all possible winning conditions.
         // You only need to handle whether a player has won vertically
-        // (as either RED or BLACK). In all other cases, this should 
+        // (as either RED or BLACK). In all other cases, this should
         // return Result.NONE.
-        // 
+        //
         // Note: You may find it convenient to use another method of
-        //       this class to determine whether someone has won 
-        //       along a column.
-        
+        // this class to determine whether someone has won
+        // along a column.
+
         // TODO
-        
+
+        for (int i = 0; i < 7; i++){
+            String columnString = getColumnAsString(i);
+                if (columnString.length() == 6) {
+                    if (columnString.equals("RRRRRR")){
+                        return Result.REDWIN;
+                    } else if (columnString.equals("BBBBBB")){
+                        return Result.BLACKWIN;
+
+                    } else {
+                        return Result.TIE;
+                    }
+            } else if (columnString.length() < 6) {
+                return Result.NONE;
+            }
+
+        }
+
+
         return Result.NONE;
     }
-    
+
     /**
      * This method returns the representation of the board as a string.
      * The following is an example:
      * 
-     *  | | | | | | | |
-     *  | | | | | | | |
-     *  | | | | | | | |
-     *  | | | |B| | | |
-     *  |B| |B|R| | | |
-     *  |R|B|B|R| |R|R|
-     *  ---------------
+     * | | | | | | | |
+     * | | | | | | | |
+     * | | | | | | | |
+     * | | | |B| | | |
+     * |B| |B|R| | | |
+     * |R|B|B|R| |R|R|
+     * ---------------
      * 
      * Here, "B" and "R" mark the black and red tokens in each column.
      * 
@@ -193,9 +244,19 @@ public class ConnectFour {
     public String toString() {
         // Question 5
         // TODO
-        
+
+        // for (int i = 0; i < 7; i++){
+        //     String columnString = getColumnAsString(i);
+        //     for (int j = 0; j != columnString.length(); j ++){
+                
+
+        //     }
+
+
+
         return "";
     }
 
-
 }
+
+
